@@ -6,6 +6,7 @@ from typing import *
 TIMEOUT = 2 # seconds
 
 class GuessResult(Enum):
+    """Result of evaluating a user's guess for a function."""
     CORRECT = 0
     INCORRECT = 1
     ERROR = 2
@@ -45,7 +46,7 @@ class Function:
             except TimeoutError:
                 return (GuessResult.ERROR, "Timeout. The code took too long to evaluate.")
             except Exception as e:
-                return (GuessResult.ERROR, "Error during evaluation: " + str(e))
+                return (GuessResult.ERROR, str(e))
 
     def guess_samples(self, attempt: str) -> (GuessResult, Optional[List[int]], Optional[str]):
         """
@@ -53,6 +54,12 @@ class Function:
         Does not assume anything about the attempt.
         Returns a guess result and, if the result is not CORRECT, a sample input that failed, and if the result is ERROR, an error message.
         """
+        for sample in self.sample_inputs:
+            (res, err) = self.guess_single(attempt, sample)
+            if res == GuessResult.INCORRECT:
+                return (res, sample, None)
+            if res == GuessResult.ERROR:
+                return (res, sample, err)
         return (GuessResult.CORRECT, None, None)
 
 @dataclass

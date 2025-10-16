@@ -1,6 +1,6 @@
 import json
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -15,6 +15,9 @@ FUNCTION = Function(
 EXAMPLES = [FunctionExample(inputs, FUNCTION.evaluate(inputs)) for inputs in FUNCTION.sample_inputs]
 
 def index(request):
+    """
+    Index HTML page, with `function` and `examples` for the template.
+    """
     return render(request, 'hello_azure/index.html', {'function': FUNCTION, 'examples': EXAMPLES})
 
 @csrf_exempt
@@ -32,7 +35,7 @@ def evaluate(request):
         if result == GuessResult.CORRECT:
           data = json.dumps({'result': 'correct'})
         elif result == GuessResult.INCORRECT:
-          data = json.dumps({'result': 'incorrect', 'sample': ", ".join(sample)})
+          data = json.dumps({'result': 'incorrect', 'sample': ", ".join([str(i) for i in sample])})
         else:
           data = json.dumps({'result': 'error', 'error': error})
         return HttpResponse(data, content_type='application/json')
