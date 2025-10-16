@@ -67,7 +67,12 @@
         <h1>Python Teacher</h1>
         <p>
             Let's learn some basic Python by example!
+        </p>
+        <p>
             Write a function that {{ function.description }}, given the parameter{% if function.parameters|length > 1 %}s{% endif %} <code>{{ function.parameters | join:", " }}</code>.
+            The code will be executed as an expression, so you should <b>not</b> write a <code>def</code> nor use <code>return</code>, nor constructs such as <code>while</code>.
+        </p>
+        <p>
             Here are some example input/output pairs:
         </p>
         <table>

@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
+from multiprocessing import Pool, TimeoutError
 from typing import *
+
+TIMEOUT = 2 # seconds
 
 class GuessResult(Enum):
     CORRECT = 0
@@ -26,7 +29,23 @@ class Function:
         Does not assume anything about the attempt or arguments.
         Returns a guess result and, if it is an error, an error message.
         """
-        return (GuessResult.CORRECT, None)
+        if len(args) != len(self.parameters):
+            return (GuessResult.ERROR, "Wrong number of arguments.")
+
+        # based on https://stackoverflow.com/a/51619876/3311770
+        with Pool(processes=2) as pool:
+            locals = dict(zip(self.parameters, args))
+            result = pool.apply_async(eval, [attempt, None, locals])
+
+            try:
+                r = result.get(timeout=TIMEOUT)
+                if r == self.evaluate(args):
+                    return (GuessResult.CORRECT, None)
+                return (GuessResult.INCORRECT, None)
+            except TimeoutError:
+                return (GuessResult.ERROR, "Timeout. The code took too long to evaluate.")
+            except Exception as e:
+                return (GuessResult.ERROR, "Error during evaluation: " + str(e))
 
     def guess_samples(self, attempt: str) -> (GuessResult, Optional[List[int]], Optional[str]):
         """
