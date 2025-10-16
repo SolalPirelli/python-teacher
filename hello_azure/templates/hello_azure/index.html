@@ -52,7 +52,7 @@
           if (result['result'] === 'correct') {
             setInfo('Congrats, you got it!', 'correct', false);
           } else if (result['result'] === 'incorrect') {
-            setInfo('Not quite there. Your code does not work for: ' + result['sample'], 'incorrect', false);
+            setInfo('Not quite there. Your code does not work for: ' + result['sample'] + '. Hint: ' + result['hint'] + '.', 'incorrect', false);
           } else {
             setInfo('An error occurred during evaluation: ' + result['error'], 'error', false);
           }

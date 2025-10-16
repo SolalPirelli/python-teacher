@@ -17,6 +17,7 @@ class Function:
     description: str
     parameters: List[str]
     sample_inputs: List[List[int]]
+    hints: List[str]
     code: str
 
     def evaluate(self, args: List[int]) -> int:

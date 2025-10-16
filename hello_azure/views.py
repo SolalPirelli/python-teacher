@@ -1,4 +1,5 @@
 import json
+import random
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -10,6 +11,7 @@ FUNCTION = Function(
   "returns the remainder from dividing its input by 3",
   ["x"],
   [[0], [1], [8], [-1], [-11]],
+  ["There is one specific Python operator you should use"],
   "x % 3"
 )
 EXAMPLES = [FunctionExample(inputs, FUNCTION.evaluate(inputs)) for inputs in FUNCTION.sample_inputs]
@@ -26,7 +28,7 @@ def evaluate(request):
     Input: POST with code as the request body
     Output: JSON with a 'result' string property, and:
     * If 'result' is 'correct', nothing else
-    * If 'result' is 'incorrect', a 'sample' string containing information about a failing sample.
+    * If 'result' is 'incorrect', a 'sample' string containing information about a failing sample, and a 'hint' string.
     * Otherwise, an 'error' string containing error details.
     """
     if request.method == 'POST':
@@ -35,7 +37,9 @@ def evaluate(request):
         if result == GuessResult.CORRECT:
           data = json.dumps({'result': 'correct'})
         elif result == GuessResult.INCORRECT:
-          data = json.dumps({'result': 'incorrect', 'sample': ", ".join([str(i) for i in sample])})
+          sample = ", ".join([str(i) for i in sample])
+          hint = random.choice(FUNCTION.hints)
+          data = json.dumps({'result': 'incorrect', 'sample': sample, 'hint': hint})
         else:
           data = json.dumps({'result': 'error', 'error': error})
         return HttpResponse(data, content_type='application/json')

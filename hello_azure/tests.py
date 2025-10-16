@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from .models import Function, GuessResult
 
-IDENTITY = Function("identity", ["x"], [[0], [42]], "x")
+IDENTITY = Function("identity", ["x"], [[0], [42]], [], "x")
 
 class FunctionTest(TestCase):
     def test_evaluate(self):
