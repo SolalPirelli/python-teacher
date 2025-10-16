@@ -1,0 +1,97 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Python Teacher</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <!--<link rel="icon"href="{% static 'favicon.ico' %}">-->
+
+    <style>
+      #info-banner {
+        padding: 1em;
+        margin: 1em 0;
+      }
+      .info {
+        background-color: #D9EDF7;
+        color: #31708F;
+      }
+      .error {
+        color: #D8000C;
+        background-color: #FFBABA;
+      }
+      .correct {
+        color: #4F8A10;
+        background-color: #DFF2BF; 
+      }
+      .incorrect {
+        background-color: #FEEFB3;
+        color: #9F6000;
+      }
+
+      #code-box {
+        height: 30vh;
+      }
+    </style>
+    <script>
+      function setInfo(text, clazz, busy) {
+        const banner = document.getElementById('info-banner');
+        banner.innerHTML = text;
+        banner.className = clazz;
+        banner.ariaBusy = busy;
+      }
+      async function run() {
+        const code = document.getElementById('code-box').value;
+        setInfo('Evaluating...', 'progress', true);
+        try {
+          const response = await fetch('/evaluate', {
+            method: 'POST',
+            body: code
+          });
+          const result = await response.json();
+          if (result['result'] === 'correct') {
+            setInfo('Congrats, you got it!', 'correct', false);
+          } else if (result['result'] === 'incorrect') {
+            setInfo('Not quite there. Your code does not work for: ' + result['sample'], 'incorrect', false);
+          } else {
+            setInfo('An error occurred during evaluation: ' + result['error'], 'error', false);
+          }
+        } catch {
+          setInfo('An error occurred contacting the server. Please try again later.', 'error', false);
+        }
+      }
+    </script>
+</head>
+<body>
+    <main class="container">
+        <h1>Python Teacher</h1>
+        <p>
+            Let's learn some basic Python by example!
+            Write a function that {{ function.description }}, given the parameter{% if function.parameters|length > 1 %}s{% endif %} <code>{{ function.parameters | join:", " }}</code>.
+            Here are some example input/output pairs:
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Input</th>
+                    <th>Expected output</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for example in examples %}
+                <tr>
+                    <td>{{ example.inputs | join:", " }}</td>
+                    <td>{{ example.output }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p>
+            You may want to consult the <a href="https://docs.python.org/3/reference/expressions.html#binary-arithmetic-operations" target="_blank">Python documentation</a> on arithmetic operators.
+        </p>
+        <div id="info-banner" class="info">Write Python code below and hit the 'Run' button to see if you got it right!</div>
+        <textarea id="code-box" placeholder="Write your code here..."></textarea>
+        <button type="submit" onclick="run()">Run</button>
+    </main>
+</body>
+</html>
